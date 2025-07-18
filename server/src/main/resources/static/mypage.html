@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f8f8f8;
+            padding: 30px;
+        }
+
+        h2 {
+            margin-top: 40px;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 8px;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 10px;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.05);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        .section {
+            margin-top: 50px;
+        }
+
+        .userinfo {
+            background-color: #ffffff;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>마이페이지</h1>
+
+<div class="userinfo">
+    <p><strong>아이디:</strong> <span id="userid"></span></p>
+    <p><strong>이름:</strong> <span id="name"></span></p>
+    <p><strong>닉네임:</strong> <span id="nickname"></span></p>
+    <p><strong>전화번호:</strong> <span id="phone"></span></p>
+</div>
+
+<div class="section">
+    <h2>내가 만든 스터디</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>제목</th>
+            <th>설명</th>
+            <th>모집 정원</th>
+            <th>현재 인원</th>
+            <th>마감일</th>
+        </tr>
+        </thead>
+        <tbody id="createdStudies"></tbody>
+    </table>
+</div>
+
+<div class="section">
+    <h2>내가 신청한 스터디</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>제목</th>
+            <th>설명</th>
+            <th>모집 정원</th>
+            <th>현재 인원</th>
+            <th>마감일</th>
+        </tr>
+        </thead>
+        <tbody id="joinedStudies"></tbody>
+    </table>
+</div>
+
+<script>
+    const token = localStorage.getItem("token");
+
+    async function fetchMyInfo() {
+        const res = await fetch("/auth/me", {
+            headers: { "Authorization": "Bearer " + token }
+        });
+        const data = await res.json();
+        const m = data.result;
+        document.getElementById("userid").innerText = m.userid;
+        document.getElementById("name").innerText = m.name;
+        document.getElementById("nickname").innerText = m.nickname;
+        document.getElementById("phone").innerText = m.phone;
+    }
+
+    async function fetchCreatedStudies() {
+        const res = await fetch("/mypage/mystudies", {
+            headers: { "Authorization": "Bearer " + token }
+        });
+        const data = await res.json();
+        renderStudies(data.result, "createdStudies");
+    }
+
+    async function fetchJoinedStudies() {
+        const res = await fetch("/mypage/joinedstudies", {
+            headers: { "Authorization": "Bearer " + token }
+        });
+        const data = await res.json();
+        renderStudies(data.result, "joinedStudies");
+    }
+
+    function renderStudies(list, targetId) {
+        const tbody = document.getElementById(targetId);
+        tbody.innerHTML = "";
+        list.forEach(s => {
+            const row = `
+          <tr>
+            <td>${s.title}</td>
+            <td>${s.description}</td>
+            <td>${s.capacity}</td>
+            <td>${s.currentMembers}</td>
+            <td>${s.deadline}</td>
+          </tr>
+        `;
+            tbody.insertAdjacentHTML("beforeend", row);
+        });
+    }
+
+    fetchMyInfo();
+    fetchCreatedStudies();
+    fetchJoinedStudies();
+</script>
+</body>
+</html>

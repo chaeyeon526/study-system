@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 40px;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 25px;
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>회원가입</h2>
+    <form id="registerForm">
+        <label for="userid">아이디(이메일)</label>
+        <input type="email" id="userid" name="userid" required>
+
+        <label for="password">비밀번호</label>
+        <input type="password" id="password" name="password" required>
+
+        <label for="name">이름</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="nickname">닉네임</label>
+        <input type="text" id="nickname" name="nickname">
+
+        <label for="phone">전화번호</label>
+        <input type="tel" id="phone" name="phone">
+
+        <label for="gender">성별</label>
+        <select id="gender" name="gender">
+            <option value="">선택</option>
+            <option value="남자">남자</option>
+            <option value="여자">여자</option>
+        </select>
+
+        <label for="region">지역</label>
+        <input type="text" id="region" name="region">
+
+        <label for="district">구/군</label>
+        <input type="text" id="district" name="district">
+
+        <!-- profile_image는 JSON 전송 방식에서는 제외됨 -->
+
+        <button type="submit">회원가입</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('registerForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const data = {
+            userid: document.getElementById('userid').value,
+            password: document.getElementById('password').value,
+            name: document.getElementById('name').value,
+            nickname: document.getElementById('nickname').value,
+            phone: document.getElementById('phone').value,
+            gender: document.getElementById('gender').value,
+            region: document.getElementById('region').value,
+            district: document.getElementById('district').value
+        };
+
+        const response = await fetch('/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert('회원가입 성공!');
+            window.location.href = '/login';
+        } else {
+            alert('회원가입 실패: ' + result.message || '알 수 없는 오류');
+        }
+    });
+</script>
+</body>
+</html>

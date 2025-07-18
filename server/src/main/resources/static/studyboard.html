@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>스터디 모집 게시판</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
+        th { background-color: #f0f0f0; }
+        .search { margin-bottom: 20px; }
+        .search input { padding: 8px; }
+        .search button { padding: 8px 12px; }
+    </style>
+</head>
+<body>
+<h2>📚 스터디 모집 게시판</h2>
+
+<div class="search">
+    <input type="text" id="searchTitle" placeholder="제목 검색">
+    <input type="text" id="searchWriter" placeholder="작성자 검색">
+    <button onclick="searchStudies()">검색</button>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>스터디 제목</th>
+        <th>설명</th>
+        <th>정원</th>
+        <th>현재 인원</th>
+        <th>마감일</th>
+        <th>참여</th>
+    </tr>
+    </thead>
+    <tbody id="studyTableBody">
+    <!-- 목록 동적 삽입 -->
+    </tbody>
+</table>
+
+<script>
+    async function fetchStudies() {
+        const res = await fetch('/studies');
+        const data = await res.json();
+        renderStudies(data.result.content || []);
+    }
+
+    function renderStudies(studies) {
+        const tbody = document.getElementById('studyTableBody');
+        tbody.innerHTML = '';
+        studies.forEach(s => {
+            const row = `
+          <tr>
+            <td>${s.title}</td>
+            <td>${s.description}</td>
+            <td>${s.capacity}</td>
+            <td>${s.currentMembers}</td>
+            <td>${s.deadline}</td>
+            <td><button onclick="joinStudy(${s.studyRoomId})">참가</button></td>
+          </tr>
+        `;
+            tbody.insertAdjacentHTML('beforeend', row);
+        });
+    }
+
+    async function searchStudies() {
+        const title = document.getElementById('searchTitle').value;
+        const writer = document.getElementById('searchWriter').value;
+        const res = await fetch(`/studies/search?title=${encodeURIComponent(title)}&writer=${encodeURIComponent(writer)}`);
+        const data = await res.json();
+        renderStudies(data.result);
+    }
+
+    async function joinStudy(studyRoomId) {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`/studies/${studyRoomId}/join`, {
+            method: 'POST',
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+        const result = await res.json();
+        alert(result.message || (res.ok ? "참가 완료!" : "참가 실패"));
+    }
+
+    fetchStudies();
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+# IDEA 설정
+.idea/
+*.iml
+
+# 빌드 파일
+/build/
+/target/
+/out/
+
+# 환경파일
+.env
+application.properties
+application.yml
+
+# 로그 파일
+*.log
+logs/
+
+# OS 파일
+.DS_Store
+Thumbs.db
+
+# 의존성
+.gradle/
+node_modules/
+
+# 기타
+*.war
+*.jar
+*.zip
+*.class
